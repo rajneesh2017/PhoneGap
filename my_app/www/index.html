@@ -46,7 +46,8 @@ function loadWeather(coordin){
       success: function(json){
 
           console.log(json);
-          $("#current_temp").html(json.currently.temperature+"&deg;F");
+         
+          $("#current_temp").html(Math.round(json.currently.temperature)+"&deg;F");
           $("#current_temp").attr("data-icon",icons[json.currently.icon]);
           $("#summary").html(json.currently.summary);
 
@@ -75,7 +76,7 @@ function loadWeather(coordin){
 
               var geocoder =  new google.maps.Geocoder();
               var cityName= $('#cityname').val();
-
+               $("#cityid").html(cityName);
               geocoder.geocode( { 'address': cityName+ 'us'}, function(results, status) {
                   if (status == google.maps.GeocoderStatus.OK) {
            //alert("location : " + results[0].geometry.location.lat() + " " +results[0].geometry.location.lng()); 
@@ -157,6 +158,7 @@ function loadWeather(coordin){
 
                         </form>
                         <div class="cont">
+                          <h3 id="cityid"></h3>
                           <h3 id="current_temp" class="icon" ></h3>
                           <p id="summary"></p>
                           <p id="coordid" class="icon" ></p></div>
