@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<!--
+    Copyright (c) 2012-2014 Adobe Systems Incorporated. All rights reserved.
+-->
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="msapplication-tap-highlight" content="no" />
+    <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
+    <!-- <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" /> -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+
+    <link rel="stylesheet" href="js/jquerymobile/jquery.mobile-1.4.5.min.css" />
+    <script src="js/jquerymobile/jquery-1.11.1.min.js"></script>
+    <script src="js/jquerymobile/jquery.mobile-1.4.5.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/stylesheet.css" />
+
+    <link rel="stylesheet" type="text/css" href="css/style.css" />
+    <title>Weather App</title>
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>
+    <script type="text/javascript">
+
+    var icons = {"clear-day":"B",
+    "clear-night":"C",
+    "rain":"R",
+    "snow":"G",
+    "sleet":"X",
+    "wind":"S",
+    "fog":"N",
+    "cloudy":"Y",
+    "partly-cloudy-day":"H",
+    "partly-cloudy-night":"I"
+
+};
+
+
+function loadWeather(coordin){
+
+  var forcastURL="https://api.forecast.io/forecast/a5e6e2b6af9a164517fac9c93561214d/"+coordin;
+  $.ajax({
+      url: forcastURL,
+      jsonCallback: 'jsonCallback',
+      contentType: "application/json",
+      dataType: 'jsonp',
+      success: function(json){
+
+          console.log(json);
+          $("#current_temp").html(json.currently.temperature+"&deg;F");
+          $("#current_temp").attr("data-icon",icons[json.currently.icon]);
+          $("#summary").html(json.currently.summary);
+
+          $('#nextdays').html("Next Seven Days");
+          $('#forecastid').html("<ul/>");
+          $.each(json.daily.data, function(i,post){
+             $('#forecastid ul').append('<li><div> Min Temp:<b>' + post.temperatureMin + '&deg;F</b>, Max Temp:<b>' + post.temperatureMax + '&deg;F </b>, '+post.summary+'</div></li>');
+         });
+
+
+
+      },
+      error: function(e){
+          console.log(e.message);
+      }
+
+  });
+
+		}//end of funtion loadWeather
+		
+		$(document).ready(function(){
+
+
+
+          $('#submit_form').click(function() {
+
+              var geocoder =  new google.maps.Geocoder();
+              var cityName= $('#cityname').val();
+
+              geocoder.geocode( { 'address': cityName+ 'us'}, function(results, status) {
+                  if (status == google.maps.GeocoderStatus.OK) {
+           //alert("location : " + results[0].geometry.location.lat() + " " +results[0].geometry.location.lng()); 
+           var coordin=results[0].geometry.location.lat() + "," +results[0].geometry.location.lng();
+           loadWeather(coordin);
+           $("#coordid").html("The Coordinates are <b>"+results[0].geometry.location.lat() + ", " +results[0].geometry.location.lng()+"</b>");
+
+       } else {
+        alert("Something got wrong " + status);
+    }
+});
+
+
+          });
+
+      });
+
+
+       $(document).ready(function () {
+         $('#get_temp').click(function() {
+          $('#temp_page').show();
+          $('#loc_form').hide();
+
+      });
+         $('#get_loc').click(function() {
+          $('#temp_page').hide();
+          $('#loc_form').show();
+
+          if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(showPosition);
+        } else { 
+            $('#loc_form').html( "Geolocation is not supported by this browser.");
+        }
+
+
+
+    });   });
+
+       function showPosition(position) {
+
+        $('#loc_form').html( "Latitude: " + position.coords.latitude + 
+            "<br>Longitude: " + position.coords.longitude);
+    }
+
+
+
+
+    </script>
+
+
+</head>
+<body>
+    <div data-role="page" >
+
+
+
+        <div data-role="header" style="overflow:hidden;" class="header">
+            <div data-role="navbar" >
+
+                <ul><img src="img/1.jpg" class="banner" />
+                    <li style="width:50%"><a href="#" id="get_temp" class="ui-btn-active">Temperature</a></li>
+                    <li style="width:50%"><a href="#" id="get_loc">Get Location</a></li></ul>    </div><!-- /navbar -->
+
+                </div><!-- /header -->
+
+
+                <div data-role="main" class="ui-content" >
+
+                    <div id="temp_page">
+
+                        <form id="temp_input_form" method="post" action="/index.html">
+
+                            <label for="city">Enter City Name:</label>
+
+                            <input type="text" id="cityname"  size="24" maxlength="20" name="city" > <br/>
+
+                            <input id="submit_form" type="submit" value="Submit"> 
+                            
+
+                        </form>
+                        <div class="cont">
+                          <h3 id="current_temp" class="icon" ></h3>
+                          <p id="summary"></p>
+                          <p id="coordid" class="icon" ></p></div>
+
+                          <p id="nextdays" class="icon" ></p>
+                          <p id="forecastid" class="icon" ></p>
+                      </div>
+                      <div id="loc_form">
+
+
+
+                      </div>
+
+
+                  </div>
+
+                  <div data-role="footer" data-theme="b" class="footer"  id="deviceready" class="blink">
+                    <div><p>@Rajneesh Pandey</p></div>
+                    <p class="event listening"></p>
+                    <p class="event received"></p>
+
+                </div>
+
+            </div>
+
+
+            <script type="text/javascript" src="cordova.js"></script>
+            <script type="text/javascript" src="js/index.js"></script>
+            <script type="text/javascript" src="js/valid.js"></script>
+            <script type="text/javascript">
+            app.initialize();
+
+            </script>
+        </body>
+        </html>
